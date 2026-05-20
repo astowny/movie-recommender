@@ -15,11 +15,24 @@ MODEL_OUT = DATA_DIR / "model_svd.npz"
 
 def load_ratings():
     if PROCESSED.exists():
-        df = pd.read_csv(PROCESSED)
-    else:
-        raw = DATA_DIR / "ml-latest-small" / "ratings.csv"
-        df = pd.read_csv(raw)
-    return df
+        return pd.read_csv(PROCESSED)
+
+    raw = DATA_DIR / "ml-latest-small" / "ratings.csv"
+    if raw.exists():
+        return pd.read_csv(raw)
+
+    # Fallback minimal dataset when MovieLens is not available.
+    print("Local MovieLens data not found. Using a minimal demo dataset.")
+    return pd.DataFrame(
+        [
+            {'userId': 1, 'movieId': 1, 'rating': 5.0},
+            {'userId': 1, 'movieId': 2, 'rating': 2.0},
+            {'userId': 2, 'movieId': 1, 'rating': 4.0},
+            {'userId': 2, 'movieId': 3, 'rating': 5.0},
+            {'userId': 3, 'movieId': 2, 'rating': 3.0},
+            {'userId': 3, 'movieId': 3, 'rating': 4.0},
+        ]
+    )
 
 
 def train(k=50):
