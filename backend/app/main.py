@@ -1,17 +1,31 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from backend.train_svd import train as train_svd
+
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 MODEL = None
-MODEL_PATH = Path(__file__).resolve().parents[1] / "data" / "model_svd.npz"
-MOVIES_CSV = Path(__file__).resolve().parents[1] / "data" / "ml-latest-small" / "movies.csv"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MODEL_PATH = PROJECT_ROOT / "data" / "model_svd.npz"
+MOVIES_CSV = PROJECT_ROOT / "data" / "ml-latest-small" / "movies.csv"
 
 
 def load_model():
     global MODEL
+    if not MODEL_PATH.exists():
+        train_svd(k=50)
+
     if MODEL_PATH.exists():
         npz = np.load(MODEL_PATH, allow_pickle=True)
         MODEL = {
@@ -28,6 +42,8 @@ def load_model():
             MODEL['movie_map'] = {int(r.movieId): r.title for _, r in movies.iterrows()}
         else:
             MODEL['movie_map'] = {}
+    else:
+        MODEL = None
 
 
 @app.on_event("startup")
