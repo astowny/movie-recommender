@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+data/ml-latest-small.zip
+data/ml-latest-small/
+node_modules/
+.DS_Store
