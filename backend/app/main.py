@@ -56,6 +56,21 @@ def health():
     return {"status": "ok", "model_loaded": MODEL is not None}
 
 
+@app.get("/")
+def root():
+    return {"message": "Movie Recommender API", "endpoints": {"/health": "Health check", "/recommend/{user_id}": "Get recommendations", "/metrics": "Basic metrics"}}
+
+
+@app.get("/metrics")
+def metrics():
+    return {"status": "ok"} if MODEL else {"status": "model_not_ready"}
+
+
+@app.get("/favicon.ico")
+def favicon():
+    return {"status": "ok"}
+
+
 @app.get("/recommend/{user_id}")
 def recommend(user_id: int, n: int = 10):
     if MODEL is None:
